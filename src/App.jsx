@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import LoadingSpinner from './components/LoadingSpinner'
 import ErrorMessage from './components/ErrorMessage'
+// import Skeleton from 'react-loading-skeleton'
+// import 'react-loading-skeleton/dist/skeleton.css'
 
 function App() {
   const [datos, setDatos] = useState([])
@@ -12,21 +14,22 @@ function App() {
   useEffect(() => {
     const handle = async() => {
       if(user!=""){
-        setLoading(true)
-        let datos
         try {
+          setLoading(true)
+          let datos
           const response = await fetch("https://api.github.com/users/"+user)
           datos = await response.json()
+        
+          setLoading(false)
+          setDatos(datos)
+          if(datos.message){
+            if(datos.message == "Not Found")
+              setErrores("Usuario no encontrado")
+            else
+              setErrores("Limite de API excedido")
+          }
         } catch (error) {
           setErrores("Error de conexion: "+error)
-        }
-        setLoading(false)
-        setDatos(datos)
-        if(datos.message){
-          if(datos.message == "Not Found")
-            setErrores("Usuario no encontrado")
-          else
-            setErrores("Limite de API excedido")
         }
       }
     }
@@ -48,7 +51,7 @@ function App() {
           </div>
           <button>Cargar Foto</button>
         </form>
-        {loading ? <LoadingSpinner /> : <img src={datos.avatar_url} alt={datos.login} />}
+        {loading ? <LoadingSpinner /> /*<figure className='w-64 h-64'><Skeleton count={5}/></figure>*/ : datos.avatar_url && <img className='w-64 h-64' src={datos.avatar_url} alt={datos.login} />}
       </div>
     </>
   )
