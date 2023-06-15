@@ -13,12 +13,21 @@ function App() {
     const handle = async() => {
       if(user!=""){
         setLoading(true)
-        const response = await fetch("https://api.github.com/users/"+user)
-        let datos = await response.json()
+        let datos
+        try {
+          const response = await fetch("https://api.github.com/users/"+user)
+          datos = await response.json()
+        } catch (error) {
+          setErrores("Error de conexion: "+error)
+        }
         setLoading(false)
         setDatos(datos)
-        if(datos.message)
-          setErrores("Usuario no encontrado")
+        if(datos.message){
+          if(datos.message == "Not Found")
+            setErrores("Usuario no encontrado")
+          else
+            setErrores("Limite de API excedido")
+        }
       }
     }
     handle()
